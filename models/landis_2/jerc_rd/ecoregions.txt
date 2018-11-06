@@ -1,0 +1,6 @@
+LandisData   Ecoregions
+
+>> *------------------------------------------------------------*
+>> | Active |	MapCode | Name	         | Description          |
+>> *------------------------------------------------------------*
+     yes        3         ClimateRegion3   "Mesic soils"

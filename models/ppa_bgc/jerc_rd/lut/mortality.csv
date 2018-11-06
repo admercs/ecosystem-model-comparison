@@ -1,0 +1,9 @@
+species,type,probability
+PIPA,adult,0.001393779
+QUIN,adult,0.001
+QUNI,adult,0.001
+QUVI,adult,0.001
+PIPA,sapling,0.1741667
+QUIN,sapling,0.3333333
+QUNI,sapling,0.1428571
+QUVI,sapling,0.11111111

@@ -1,0 +1,32 @@
+LandisData   Scenario
+
+Duration   20
+
+Species         species.txt 
+Ecoregions      ecoregions.txt
+EcoregionsMap   ./extensions/succession/necn/maps/ecoregions.img
+
+CellLength   100  << meters; 100x100m or 1ha
+
+>> *------------------------------------------------------------------------*
+>> | Succession Extension     | Initialization File                         |
+>> *------------------------------------------------------------------------*
+     "NECN Succession"          ./extensions/succession/necn/main_v5.txt
+
+>> *------------------------------------------------------------------------*
+>> | Disturbance Extensions   | Initialization File                         |
+>> *------------------------------------------------------------------------*
+>>   "Base Fire"                ./extensions/disturbance/base_fire/main.txt
+
+>> DisturbancesRandomOrder   yes  << optional parameter; default = no
+
+>> *------------------------------------------------------------------------*
+>> | Other Extensions              | Initialization File                    |
+>> *------------------------------------------------------------------------*
+>>   "Output Reclass"                ./extensions/output/reclass.txt
+>>   "Output Leaf Biomass"           ./extensions/output/leaf_biomass.txt
+>>   "Output Cohort Statistics"      ./extensions/output/cohort_stats.txt
+>>   "Output Max Species Age"        ./extensions/output/max_spp_age.txt
+>>   "Output Leaf Biomass Reclass"   ./extensions/output/leaf_biomass_reclass.txt
+
+>> RandomNumberSeed   99  << optional parameter; default = current time

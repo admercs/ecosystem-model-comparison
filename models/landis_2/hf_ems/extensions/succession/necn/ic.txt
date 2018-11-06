@@ -1,0 +1,9 @@
+﻿LandisData   "Initial Communities"
+
+MapCode   0  << ...
+MapCode   1  << water, ag, pavement, etc.
+MapCode   2  << potential forest
+
+MapCode  10
+RedMaple   54 (6500) 62 (8000)
+RedOak     52 (1740) 62 (1830) 97 (1930)

@@ -1,0 +1,10 @@
+<landisMetadata>
+  <extension name="NECN-Succession" timeInterval="1">
+    <scenario-replication timeMin="0" timeMax="20" rasterOutCellArea="1" />
+    <outputs>
+      <output type="Table" name="MonthlyLog" filePath="NECN-succession-monthly-log.csv" visualize="True" MetadataFilePath="Metadata\NECN-Succession\MonthlyLog_Metadata.xml" />
+      <output type="Table" name="PrimaryLog" filePath="NECN-succession-log.csv" visualize="False" MetadataFilePath="Metadata\NECN-Succession\PrimaryLog_Metadata.xml" />
+      <output type="Table" name="PrimaryLogShort" filePath="NECN-succession-log-short.csv" visualize="True" MetadataFilePath="Metadata\NECN-Succession\PrimaryLogShort_Metadata.xml" />
+    </outputs>
+  </extension>
+</landisMetadata>

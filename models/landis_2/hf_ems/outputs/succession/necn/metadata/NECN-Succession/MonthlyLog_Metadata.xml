@@ -1,0 +1,19 @@
+<landisMetadata>
+  <output>
+    <extension name="NECN-Succession" metadataFilePath="NECN-Succession.xml" />
+    <fields>
+      <field name="Time" description="Simulation Year" unit="year" />
+      <field name="Month" description="Simulation Month" unit="month" />
+      <field name="ClimateRegionName" description="Climate Region Name" />
+      <field name="ClimateRegionIndex" description="Climate Region Index" />
+      <field name="NumSites" description="Number of Sites" unit="count" />
+      <field name="ppt" description="Precipitation" unit="cm" format="0.0" />
+      <field name="airtemp" description="Air Temperature" unit="Celsius" format="0.0" />
+      <field name="avgNPPtc" description="Aboveground NPP C" unit="g C m-2" format="0.00" />
+      <field name="avgResp" description="Aboveground Heterotrophic Respiration" unit="g C m-2" format="0.00" />
+      <field name="avgNEE" description="Net Ecosystem Exchange" unit="g C m-2" format="0.00" />
+      <field name="Ndep" description="N Deposition and Fixation" unit="g N m-2" format="0.00" />
+      <field name="StreamN" description="N Leaching" unit="g N m-2" format="0.00" />
+    </fields>
+  </output>
+</landisMetadata>

@@ -1,0 +1,104 @@
+LandisData   "NECN Succession"
+
+Timestep   1
+
+SeedingAlgorithm   WardSeedDispersal
+
+InitialCommunities      ./extensions/succession/necn/ic.txt       << Dummy
+InitialCommunitiesMap   ./extensions/succession/necn/maps/ic.img
+ClimateConfigFile       ./extensions/succession/necn/climate/generator.txt
+
+>> AgeOnlyDisturbances:BiomassParameters   reductions.txt
+
+SoilDepthMapName                ./extensions/succession/necn/maps/soil_depth.img      << Correct
+SoilDrainMapName                ./extensions/succession/necn/maps/soil_drain.img      << Correct
+SoilBaseFlowMapName             ./extensions/succession/necn/maps/soil_flow.img       << Correct
+SoilStormFlowMapName            ./extensions/succession/necn/maps/soil_flow.img       << Correct
+SoilFieldCapacityMapName        ./extensions/succession/necn/maps/soil_fc.img         << ...
+SoilWiltingPointMapName	        ./extensions/succession/necn/maps/soil_wp.img         << ...
+SoilPercentSandMapName          ./extensions/succession/necn/maps/soil_sand.img       << ...
+SoilPercentClayMapName          ./extensions/succession/necn/maps/soil_clay.img       << ...
+InitialSOM1CsurfMapName         ./extensions/succession/necn/maps/som1_c_surface.img  << ...
+InitialSOM1NsurfMapName         ./extensions/succession/necn/maps/som1_n_surface.img  << ...
+InitialSOM1CsoilMapName         ./extensions/succession/necn/maps/som1_c_soil.img     << ...
+InitialSOM1NsoilMapName         ./extensions/succession/necn/maps/som1_n_soil.img     << ...
+InitialSOM2CMapName             ./extensions/succession/necn/maps/som2_c.img          << ...
+InitialSOM2NMapName             ./extensions/succession/necn/maps/som2_n.img          << ...
+InitialSOM3CMapName             ./extensions/succession/necn/maps/som3_c.img          << ...
+InitialSOM3NMapName             ./extensions/succession/necn/maps/som3_n.img          << ...
+InitialDeadWoodSurfaceMapName   ./extensions/succession/necn/maps/wood_surface.img    << Dummy
+InitialDeadCoarseRootsMapName   ./extensions/succession/necn/maps/coarse_roots.img    << Dummy
+
+CalibrateMode        yes
+SmokeModelOutputs    no
+WaterDecayFunction   Ratio  << Linear | Ratio
+
+ProbabilityEstablishAdjust   0.1     << ...
+InitialMineralN              3.0     << ...
+InitialFineFuels             0.1     << ...
+AtmosphericNSlope            0.007   << ...
+AtmosphericNIntercept        0.011   << ...
+Latitude                    43.3     << ...
+DenitrificationRate          0.001   << ...
+DecayRateSurf                0.65    << ...
+DecayRateSOM1                1.0     << ...
+DecayRateSOM2                0.125   << ...
+DecayRateSOM3                0.0002  << ...
+
+MaximumLAI
+>> *-------------*
+>> | Shade | Max |
+>> | Class | LAI |
+>> *-------------*
+     1       1
+     2       2.5
+     3       3.5
+     4       6
+     5       8
+
+LightEstablishmentTable
+>> *---------------------------------------------------------*
+>> | Shade Class | Establishment Probability by Actual Shade |
+>> *---------------------------------------------------------*
+>>                 0      1      2      3      4      5
+     1             1      1      0.25   0.1    0      0
+     2             0.5    0.5    1      0.25   0.1    0
+     3             0.1    0.5    1      1      0.5    0.1
+     4             0.1    0.25   0.5    0.5    1      0.25
+     5             0      0.1    0.25   0.25   0.5    1
+
+SpeciesParameters
+>> *-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*
+>> | Species    | Functional | N     | GDD | GDD   | Min | Max     | Leaf | Epi-   | Leaf  | FRoot | Wood  | CRoot | Leaf | FRoot | Wood | CRoot | Litter | Max  | Max     |
+>> |            | Type	     | Fixer | Min | Max T | Jan | Drought | Long | cormic | Lign% | Lign% | Lign% | Lign% | CN   | CN    | CN   | CN    | CN     | ANPP | Biomass |
+>> *-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*
+     RedMaple     3            N       1260  6600    -18   0.23      1      N        0.183   0.334   0.125   0.312   28.20  26      565    50      55       440   25000
+     RedOak       2            N       1100  4571    -17   0.2025    1      N        0.249   0.334   0.225   0.303   18.50  58      398    113     32       380   25000
+
+FunctionalGroupParameters
+>> *-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*
+>> | Name           | Index | PPDF1  | PPDF2 | PPDF3   | PPDF4   | FCFRAC | BTOLAI | KLAI | MAXLAI | PPRPTS2 | PPRPTS3 | Wood   | Monthly  | Mort  | Drop  | CRoot | FRoot |
+>> |                |       | T-Mean | T-Max | T-shape | T-shape | leaf   |        |      |        |         |         | DecayR | WoodMort | Shape | Month | Frac  | Frac  |
+>> *-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*
+     Oaks             2       25       40      1.5       2.5       0.6      -0.9     10000  9        0.1       0.8       0.5      0.0006     15	     9       0.2      0.5
+     NorthHardwoods   3	      25       40      1.5       2.5       0.6      -0.9     7000   10       1.5       0.96      0.7      0.0006     15	     9       0.2      0.5     << klai was 7000
+
+FireReductionParameters
+>> *-----------------------------------*
+>> | Severity | Wood  | Litter | SOM   |
+>> | Class    | Reduc | Reduc  | Reduc |
+>> *-----------------------------------*
+     1          0.0     0.5      1.0
+     2          0.05    0.75     1.0
+     3          0.2     1.0      1.0
+     4          0.5     1.0      1.0
+     5          0.8     1.0      1.0
+
+HarvestReductionParameters
+>> *---------------------------------------------------*
+>> | Severity     | Wood  | Litter | SOM   | ... | ... |
+>> | Class        | Reduc | Reduc  | Reduc | ... | ... |
+>> *---------------------------------------------------*
+     HandThinning   0.05    1.0      1.0     1.0   1.0
+     MechThinning   0.05    1.0      1.0     0.85  1.0
+     >> Salvage        0.5     1.0      0.02    0.0   0.0

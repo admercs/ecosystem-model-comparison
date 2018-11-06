@@ -1,0 +1,9 @@
+LandisData   Species
+
+>> *----------------------------------------------------------------------------------------------------------------------*
+>> | Name       | Longevity | Sexual   | Shade | Fire | Disperal  | Dispersal | Vegetative  | Sprout | Sprout | Post-Fire |
+>> |            |           | Maturity | Tol.  | Tol. | Effective | Maximum   | Reprod Prob | Min    | Max    | Regen     |
+>> *----------------------------------------------------------------------------------------------------------------------*
+     BlueJackOak  150         10         4       5      50          3000        0.75          5        40       resprout
+     LongPine     400         20         1       5      20          200         0.0           0        5        none
+     TurkeyOak    150         20         4       3      50          3000        0.75          5        40       resprout

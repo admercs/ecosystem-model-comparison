@@ -1,0 +1,14 @@
+LandisData "Climate Config"				
+		
+ClimateTimeSeries         Monthly_RandomYears
+ClimateFile               ./extensions/succession/necn/climate/data.csv
+ClimateFileFormat         Monthly_Temp-C_Precip-mmMonth
+
+SpinUpClimateTimeSeries	  Monthly_RandomYears
+SpinUpClimateFile         ./extensions/succession/necn/climate/data.csv
+SpinUpClimateFileFormat   Monthly_Temp-C_Precip-mmMonth
+
+UsingFireClimate              no
+RelativeHumiditySlopeAdjust   77.68
+SpringStart                   30
+WinterStart                   320

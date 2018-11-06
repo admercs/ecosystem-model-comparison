@@ -1,0 +1,39 @@
+LandisData  Species
+
+>> *----------------------------------------------------------------------------------------------------------------------*
+>> | Name       | Longevity | Sexual   | Shade | Fire | Disperal  | Dispersal | Vegetative  | Sprout | Sprout | Post-Fire |
+>> |            |           | Maturity | Tol.  | Tol. | Effective | Maximum   | Reprod Prob | Min    | Max    | Regen     |
+>> *----------------------------------------------------------------------------------------------------------------------*
+     abiebals     200         25         5       1      30          160	        0             0	       0        none
+     RedMaple     235         5          4       1      100         200	        0.75          0	       150      none
+     acersacc     300         40         5       1      100         200	        0.1           0	       60       none
+     betualle     300         40         3       2      100         400	        0.1           0	       180      none
+     betulent     250         40         4       2      100         400	        0.1           0	       0        none
+     betupapy     150         40         4       2      100         600	        0.75          0	       150      none
+     betupopu     150         40         4       2      100         400	        0.1           0	       0        none
+     caryglab     200         30         3       2      50          100	        0.25          0	       200      resprout
+     fagugran     350         10         5       1      30          300	        0.4           10       200      resprout
+     fraxamer     300         30         2       1      70          140	        0.1           0	       70       none
+     fraxnigr     150         30         4       2      200         2000        0.8           10       140      resprout
+     larilari     180         35         2       2      100         400	        0.2           0	       0        none
+     ostrvirg     110         25         4       2      100         200	        0.15          0	       100      resprout
+     piceglau     300         25         3       2      30          200	        0             0	       0        none 
+     picemari     215         30         3       3      79          158	        0             0	       0        none
+     picerube     350         15         5       2      80          125	        0             0	       0        none
+     pinuresi     250         15         2       4      100         275	        0.1           0	       20       none 
+     pinurigi     200         10         2       4      90          150	        0.5           10       100      resprout
+     pinustro     400         25         3       3      60          210	        0             0	       0        none
+     popubals     150         10         1       2      100         200	        0.8           10       80       resprout
+     popugran     110         20         1       1      1000        5000        0.9           0	       100      resprout
+     poputrem     110         20         1       1      1000        5000        0.9           0	       100      resprout
+     prunsero     200         10         2       3      100         200	        0.5           20       90       resprout
+     queralba     400         25         3       2      30          800	        0.1           20       200      resprout
+     quercocc     150         20         2       3      50          100	        0.5           20       100      resprout
+     querprin     300         20         3       3      50          150	        0.5           10       200      resprout
+     RedOak       250         30         3       2      30          800	        0.5           20       200      resprout
+     quervelu     120         20         3       2      70          150	        0.1           20       90       resprout
+     thujocci     800         30         2       1      45          100	        0.5           0	       200      none
+     tiliamer     250         15         4       1      75          150	        0.8           10       240      resprout
+     tsugcana     500         20         5       2      30          100	        0             0	       0        none
+     ulmuamer     85          20         4       2      90          400	        0.3           5	       70       resprout
+     

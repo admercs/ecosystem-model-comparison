@@ -1,0 +1,14 @@
+<landisMetadata>
+  <output>
+    <extension name="NECN-Succession" metadataFilePath="NECN-Succession.xml" />
+    <fields>
+      <field name="Time" description="Simulation Year" unit="year" />
+      <field name="NEEC" description="Net Ecosystem Exchange C" unit="g C m-2" format="0.0" />
+      <field name="SOMTC" description="Total Soil Organic Carbon" unit="g C m-2" format="0.0" />
+      <field name="AGB" description="Aboveground Biomass" unit="g Biomass m-2" format="0.0" />
+      <field name="AG_NPPC" description="Aboveground NPP C" unit="g C m-2 yr-1" format="0.0" />
+      <field name="MineralN" description="Mineral N" unit="g N m-2" format="0.00" />
+      <field name="C_DeadWood" description="Dead Wood C" unit="g C m-2" format="0.0" />
+    </fields>
+  </output>
+</landisMetadata>

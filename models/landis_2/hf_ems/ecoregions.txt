@@ -1,0 +1,7 @@
+LandisData  Ecoregions
+
+>> *------------------------------------------------------------*
+>> | Active |	MapCode |	Name	        | Description             |
+>> *------------------------------------------------------------*
+     no	        0	      water	          ""
+     yes	    311	      eco311	        "Clim_region: 3 SWHC: 11"

@@ -1,0 +1,9 @@
+species,type,h_coeff,cr1,cr2,cd
+PIPA,adult,0.0333,0.087,1,0.413
+QUIN,adult,0.042,0.119,1,0.413
+QUNI,adult,0.042,0.119,1,0.413
+QUVI,adult,0.042,0.119,1,0.413
+PIPA,sapling,0.0333,0.087,1,0.413
+QUIN,sapling,0.042,0.119,1,0.413
+QUNI,sapling,0.042,0.119,1,0.413
+QUVI,sapling,0.042,0.119,1,0.413

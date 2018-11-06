@@ -1,0 +1,67 @@
+<landisMetadata>
+  <output>
+    <extension name="NECN-Succession" metadataFilePath="NECN-Succession.xml" />
+    <fields>
+      <field name="Time" description="Simulation Year" unit="year" />
+      <field name="ClimateRegionName" description="Name of Climate Region" />
+      <field name="ClimateRegionIndex" description="Climate Region Index" />
+      <field name="NumSites" description="Number of Sites" unit="count" />
+      <field name="NEEC" description="Net Ecosystem Exchange C" unit="g C m-2" format="0.0" />
+      <field name="SOMTC" description="Total Soil Organic Carbon" unit="g C m-2" format="0.0" />
+      <field name="AGB" description="Aboveground Biomass" unit="g Biomass m-2" format="0.0" />
+      <field name="AG_NPPC" description="Aboveground NPP C" unit="g C m-2 yr-1" format="0.0" />
+      <field name="BG_NPPC" description="Below ground NPP C" unit="g C m-2 yr-1" format="0.0" />
+      <field name="Litterfall" description="Litterfall C" unit="g C m-2 yr-1" format="0.0" />
+      <field name="AgeMortality" description="Age Mortality Biomass" unit="g Biomass m-2 yr-1" format="0.0" />
+      <field name="MineralN" description="Mineral N" unit="g N m-2" format="0.00" />
+      <field name="TotalN" description="Total N" unit="g N m-2" format="0.0" />
+      <field name="GrossMineralization" description="Gross Mineralization" unit="g N m-2" format="0.0" />
+      <field name="C_LiveLeaf" description="Live Leaf C" unit="g C m-2" format="0.0" />
+      <field name="C_LiveFRoot" description="Live Fine Root C" unit="g C m-2" format="0.0" />
+      <field name="C_LiveWood" description="Live Wood C" unit="g C m-2" format="0.0" />
+      <field name="C_LiveCRoot" description="Live Coarse Root C" unit="g C m-2" format="0.0" />
+      <field name="C_DeadWood" description="Dead Wood C" unit="g C m-2" format="0.0" />
+      <field name="C_DeadCRoot" description="Dead Coarse Root C" unit="g C m-2" format="0.0" />
+      <field name="C_DeadLeaf_Struc" description="Dead Leaf Structural C" unit="g C m-2" format="0.0" />
+      <field name="C_DeadLeaf_Meta" description="Dead Leaf Metabolic C" unit="g C m-2" format="0.0" />
+      <field name="C_DeadFRoot_Struc" description="Dead Fine Root Structural C" unit="g C m-2" format="0.0" />
+      <field name="C_DeadFRoot_Meta" description="Dead Fine RootMetabolic C" unit="g C m-2" format="0.0" />
+      <field name="C_SOM1surf" description="SOM1 Surface C" unit="g C m-2" format="0.0" />
+      <field name="C_SOM1soil" description="SOM1 Soil C" unit="g C m-2" format="0.0" />
+      <field name="C_SOM2" description="SOM2 C" unit="g C m-2" format="0.0" />
+      <field name="C_SOM3" description="SOM3 C" unit="g C m-2" format="0.0" />
+      <field name="N_Leaf" description="Leaf N" unit="g N m-2" format="0.0" />
+      <field name="N_FRoot" description="Fine Root N" unit="g N m-2" format="0.0" />
+      <field name="N_Wood" description="Wood N" unit="g N m-2" format="0.0" />
+      <field name="N_CRoot" description="Coarse Root N" unit="g N m-2" format="0.0" />
+      <field name="N_DeadWood" description="Dead Wood N" unit="g N m-2" format="0.0" />
+      <field name="N_DeadCRoot" description="Dead Coarse Root N" unit="g N m-2" format="0.0" />
+      <field name="N_DeadLeaf_Struc" description="Dead Leaf Structural N" unit="g N m-2" format="0.0" />
+      <field name="N_DeadLeaf_Meta" description="Dead Leaf Metabolic N" unit="g N m-2" format="0.0" />
+      <field name="N_DeadFRoot_Struc" description="Dead Fine Root Structural N" unit="g N m-2" format="0.0" />
+      <field name="N_DeadFRoot_Meta" description="Dead Fine Root Metabolic N" unit="g N m-2" format="0.0" />
+      <field name="N_SOM1surf" description="SOM1 Surface N" unit="g N m-2" format="0.0" />
+      <field name="N_SOM1soil" description="SOM1 Soil N" unit="g N m-2" format="0.0" />
+      <field name="N_SOM2" description="SOM2 N" unit="g N m-2" format="0.0" />
+      <field name="N_SOM3" description="SOM3 N" unit="g N m-2" format="0.0" />
+      <field name="SurfStrucNetMin" description="Surface Structural Net Mineralization" unit="g N m-2" format="0.0" />
+      <field name="SurfMetaNetMin" description="Surface Metabolic Net Mineralization" unit="g N m-2" format="0.0" />
+      <field name="SoilStrucNetMin" description="Soil Structural Net Mineralization" unit="g N m-2" format="0.0" />
+      <field name="SoilMetaNetMin" description="Soil Metabolic Net Mineralization" unit="g N m-2" format="0.0" />
+      <field name="SOM1surfNetMin" description="SOM1 Surface Net Mineralization" unit="g N m-2" format="0.0" />
+      <field name="SOM1soilNetMin" description="SOM1 Soil Net Mineralization" unit="g N m-2" format="0.0" />
+      <field name="SOM2NetMin" description="SOM2 Net Mineralization" unit="g N m-2" format="0.0" />
+      <field name="SOM3NetMin" description="SOM3 Net Mineralization" unit="g N m-2" format="0.0" />
+      <field name="TotalNdep" description="Total Nitrogen Deposition per Timestep" unit="g N m-2" format="0.00" />
+      <field name="StreamC" description="Stream C" unit="g C m-2" format="0.00" />
+      <field name="StreamN" description="Stream N" unit="g N m-2" format="0.00" />
+      <field name="FireCEfflux" description="Fire C Efflux" unit="g C m-2" format="0.0" />
+      <field name="FireNEfflux" description="Fire N Efflux" unit="g N m-2" format="0.0" />
+      <field name="Nuptake" description="N Uptake" unit="g N m-2" format="0.0" />
+      <field name="Nresorbed" description="N Resorbed" unit="g N m-2" format="0.0" />
+      <field name="TotalSoilN" description="Total Soil N" unit="g N m-2" format="0.0" />
+      <field name="Nvol" description="N Volatilized" unit="g N m-2" format="0.00" />
+      <field name="FrassC" description="Frass C" unit="g C m-2" format="0.0" />
+    </fields>
+  </output>
+</landisMetadata>
