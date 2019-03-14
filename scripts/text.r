@@ -1,17 +1,18 @@
 #=================================================================================================#
 # text.r
 # Text processing methods
-# Adam Erickson, Washington State University
-# June 29, 2018
+# Adam Erickson, PhD, Washington State University
+# Contact: adam.michael.erickson@gmail.com
+# March 14, 2019
+# License: Apache 2.0
 #
-# License:
-# Copyright 2018 Washington State University
+# Copyright 2019 Washington State University
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-#    http://www.apache.org/licenses/LICENSE-2.0
+# http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,

@@ -1,17 +1,18 @@
 #=================================================================================================#
 # classes.r
 # Model classes and methods
-# Adam Erickson, Washington State University
-# June 29, 2018
+# Adam Erickson, PhD, Washington State University
+# Contact: adam.michael.erickson@gmail.com
+# March 14, 2019
+# License: Apache 2.0
 #
-# License:
-# Copyright 2018 Washington State University
+# Copyright 2019 Washington State University
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-#    http://www.apache.org/licenses/LICENSE-2.0
+# http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,11 +26,12 @@
 #' Generic wrapper object for forest biogeochemistry models.
 #' @docType class
 #' @author Adam Erickson, PhD, Washington State University, \email{adam.michael.erickson@@gmail.com}
+#' @references \url{"https://github.com/adam-erickson/forestmodelr"}
 #' @export
 #' @return Object of \code{\link{R6::R6Class}} with methods for running forest biogeochemistry models.
 #' @format \code{\link{R6::R6Class}} object.
 #' @examples
-#' sortie <- Model$new(list(name="SortiePPA", version="5.0", directory="/sortie", executable="Rscript", arguments="--vanilla sortie_ppa_50.r"))
+#' sortie <- Model$new(list(name="PPA-SiBGC", version="5.0", directory="/Users/user/sortie", executable="Rscript", arguments="--vanilla ppa_sibgc_v1.r"))
 #' sortie$parameters <- c(0.7, 0.1)
 #' sortie$files <- list()
 #' print(sortie$command)
@@ -46,6 +48,14 @@ Model <- R6::R6Class("Model",
     #' @field command Command character to run model. Defaults to character().
     #' @field files File input/output list. Defaults to list(inputs=list(), outputs=list(), observations=list()).
     #' @field results List for storing model results and parameters used. Defaults to list().
+    #' Optimization parameters
+    #' @field parameters Optional named parameter vector for optimization. Defaults to c().
+    #' @field lower Optional lower bounds for optimization. Defaults to c().
+    #' @field upper Optional upper bounds for optimization. Defaults to c().
+    #' @field loss_function Optional loss function for optimization. Defaults to eval().
+    #' Monte Carlo parameters
+    #' @field sample_grid List of parameter samples. Defaults to list(). Converts to data.frame().
+    #' @field distributions List of distribution names and generators.
     #' Optional parameters
     #' @field timescale Numeric vector timescale parameter. Defaults to c().
     #' @field bounds Numeric vector bounding box or polygon coordinates. Defaults to c().
@@ -137,31 +147,16 @@ Model <- R6::R6Class("Model",
       message("Parameter files successfully archived")
       return(invisible(0))
     },
-    #' Update parameters
-    #' @note Required by optimize() and montecarlo().
-    #' @note Assumes CSV file format, override otherwise.
-    #' @param ... Only use class variables.
-    update_parameters = function(...) {
-      for (i in seq(length(self$parameters))) {
-        list_id    = names(self$parameters[i])
-        list_names = unlist(strsplit(list_id, split="\\."))
-        parameters = self$parameters[[list_names]]
-        inputfile  = read.csv(self$files$inputs[[list_names]], header=TRUE, stringsAsFactors=FALSE)
-        inputfile[names(parameters)] = unlist(parameters)
-        write.csv(inputfile, self$files$inputs[[list_names]], row.names=FALSE)
-      }
-      return(invisible(0))
-    },
-    #' Optimization/Monte Carlo model prediction function placeholder.
+    #' Prediction function placeholder.
     #' @param ... Only use class variables.
     #' @note Required by optimize().
     #' @note Pass user-defined function that computes variable of interest in temporal range from simulation outputs.
     get_predictions = function(...) {},
-    #' Placeholder for function to update predictions stored in object.
+    #' Update predictions function placeholder.
     #' @param ... Only use class variables.
     #' @note Pass user-defined function that computes variable of interest in temporal range from simulation outputs.
     update_predictions = function(...) {},
-    #' Optimization/Monte Carlo observation metric retrieval function.
+    #' Observation metric retrieval function.
     #' @param ... Only use class variables.
     #' @note Required by optimize(). Depends on set_parameters() function.
     get_observations = NULL,
@@ -205,20 +200,14 @@ Model <- R6::R6Class("Model",
       y = y[order(y$year),]
       if (grepl("^(biomass|abundance)_sp$", variable)) {
         y_var = colnames(y)[grep("biomass|abundance", colnames(y))]
-        p1 = ggplot2::ggplot(data=x, ggplot2::aes_string(x="year", y=y_var, color="species", label="species")) +
-          ggplot2::labs(x=labels$xlab, y=labels$ylab) +
-          ggplot2::guides(colour=ggplot2::guide_legend(override.aes=list(size=4))) +
-          ggplot2::theme(legend.key=ggplot2::element_rect(fill=NA)) +
-          ggplot2::geom_line() + ggplot2::theme_minimal()  +
-          ggplot2::geom_text(data=x[x$year == max(years),],
-                             ggplot2::aes_string(label="species", x="year + 0.5", y=y_var, color="species"))
-        p2 = ggplot2::ggplot(data=y, ggplot2::aes_string(x="year", y=y_var, color="species", label="species")) +
-          ggplot2::labs(x=labels$xlab, y="") +
-          ggplot2::guides(colour=ggplot2::guide_legend(override.aes=list(size=4))) +
-          ggplot2::theme(legend.key=ggplot2::element_rect(fill=NA)) +
-          ggplot2::geom_line() + ggplot2::theme_minimal()  +
-          ggplot2::geom_text(data=y[y$year == max(years),],
-                             ggplot2::aes_string(label="species", x="year + 0.5", y=y_var, color="species"))
+        qual_col_pals = RColorBrewer::brewer.pal.info[RColorBrewer::brewer.pal.info$category=="qual",]
+        col_vector = unlist(mapply(RColorBrewer::brewer.pal, qual_col_pals$maxcolors, rownames(qual_col_pals)))
+        p1 = ggplot2::ggplot(x, ggplot2::aes_string(x="year", y=y_var, fill="species")) +
+          ggplot2::geom_bar(stat="identity") + ggplot2::scale_fill_manual(values=col_vector) +
+          ggplot2::theme_minimal()
+        p2 = ggplot2::ggplot(y, ggplot2::aes_string(x="year", y=y_var, fill="species")) +
+          ggplot2::geom_bar(stat="identity") + ggplot2::scale_fill_manual(values=col_vector) +
+          ggplot2::theme_minimal()
         print(ggpubr::ggarrange(p1, p2, widths=c(5,5), ncol=2, nrow=1, align="h", legend="right", common.legend=TRUE))
       } else {
         r2_model   = r_squared(x=x[,2], y=y[,2])
@@ -232,16 +221,24 @@ Model <- R6::R6Class("Model",
                ylim=limits$ylim, col="blue", lwd=2)
           lines(x=years, y=y[,2], col="red", lwd=2)
         }
-        #abline(0, 1, col="grey")
         mtext(paste0("R2: ", round(r2_model, 2), " RMSE: ", round(rmse_model, 2)), line=-1)
       }
       return(invisible(0))
     },
     #' Helper function to automatically produce PDF files of plots
     #' @param ... Only use class variables.
+    #' @param directory
+    #' @param variable
+    #' @param width
+    #' @param height
+    #' @param family
+    #' @param paper
+    #' @param ... Only use class variables.
+    #' @return 0
+    #' @example model$save_pdf(file.path(base, "figures"), "nee")
     save_pdf = function(directory, variable, width=5, height=5, family="Helvetica", paper="special", ...) {
       file = paste0(self$name, "_", self$site, "_", variable, ".pdf")
-      pdf(file=file.path(directory, file), width=width, height=height, family=family, paper=paper)
+      pdf(file=file.path(directory, file), width=width, height=height, family=family, paper=paper, onefile=FALSE)
       self$plot(variable=variable)
       graphics.off()
       message(paste("PDF file location:", file.path(directory, file)))
@@ -253,15 +250,16 @@ Model <- R6::R6Class("Model",
     get_fitness = function(...) {
       if (length(self$metrics) < 1) { stop("Please define the model metrics") }
       if (length(self$timescale) < 1) { stop("Please define the model timescale") }
-      df = data.frame(metric=NULL, r2=NULL, rmse=NULL, mae=NULL)
+      df = data.frame(metric=NULL, r2=NULL, rmse=NULL, mae=NULL, me=NULL)
       for (metric in self$metrics) {
         years   = Reduce(intersect, list(self$timescale,
                                          self$observations[[metric]]$year,
                                          self$predictions [[metric]]$year))
-        if (any(grepl("_so", metric))) {
+        if (metric %in% c("c_so","n_so")) {
           x  = mean(self$observations[[metric]][,2], na.rm=TRUE)
           y  = mean(self$predictions [[metric]][,2], na.rm=TRUE)
-          df = rbind(df, data.frame(metric=metric, r2=NA, rmse=rmse(x=x, y=y), mae=mae(x=x, y=y)))
+          df = rbind(df, data.frame(metric=metric, r2=NA, rmse=rmse(x=x, y=y),
+                                    mae=mae(x=x, y=y), me=me(x=x, y=y)))
         } else if (grepl("_sp", metric)) {
           x  = self$observations[[metric]][self$observations[[metric]]$year %in% years,]
           y  = self$predictions[[metric]] [self$predictions [[metric]]$year %in% years,]
@@ -284,14 +282,15 @@ Model <- R6::R6Class("Model",
             metric = metric,
             r2     = r_squared(x=intermediate$x, y=intermediate$y),
             rmse   = rmse(x=intermediate$x, y=intermediate$y),
-            mae    = mae(x=intermediate$x, y=intermediate$y)
+            mae    = mae(x=intermediate$x, y=intermediate$y),
+            me     = me(x=intermediate$x, y=intermediate$y)
             ))
         }
         else {
           x  = self$observations[[metric]][self$observations[[metric]]$year %in% years,][,2]
           y  = self$predictions[[metric]] [self$predictions [[metric]]$year %in% years,][,2]
           df = rbind(df, data.frame(metric=metric, r2=r_squared(x=x, y=y), rmse=rmse(x=x, y=y),
-                                    mae=mae(x=x, y=y)))
+                                    mae=mae(x=x, y=y), me=me(x=x, y=y)))
         }
       }
       self$fitness = df
@@ -301,29 +300,30 @@ Model <- R6::R6Class("Model",
 )
 
 
-#' SortiePPA R6 class
+#' PPA-SiBGC R6 class
 #'
-#' SortiePPA R6 subclass of Model R6 class.
+#' PPA-SiBGC R6 subclass of Model R6 class.
 #' @docType class
 #' @author Adam Erickson, PhD, Washington State University, \email{adam.michael.erickson@@gmail.com}
+#' @references \url{"https://github.com/adam-erickson/forestmodelr"}
 #' @export
 #' @return Object of \code{\link{R6::R6Class}} with methods for running forest biogeochemistry models.
 #' @format \code{\link{R6::R6Class}} object.
 #'
-SortiePPA <- R6::R6Class("SortiePPA",
+PPA_SiBGC <- R6::R6Class("PPA_SiBGC",
   inherit = Model,
   public = list(
     #' @section Public:
     #' Public variables and methods for class SortiePPA.
     #' Fields are inherited from Model class.
-    name    = "Sortie-PPA",
+    name    = "PPA-SiBGC",
     version = 5.0,
     #' Override default initialization
     initialize = function(directory=NA) {
       self$arguments = list(
         program = "Rscript",
         clean   = "--vanilla",
-        file    = "ppa_v50.r",
+        file    = "ppa_sibgc_v1.r",
         verbose = "--verbose"
       )
       self$files$inputs = list(
@@ -378,7 +378,7 @@ SortiePPA <- R6::R6Class("SortiePPA",
     #' @param ... Only class variables.
     get_predictions = function(variable="all", ...) {
       if (length(self$timescale) < 2) { stop("Please set a timescale before getting predictions") }
-      #Fluxes
+      # Fluxes
       fluxes  = read.csv(self$files$outputs$fluxes, header=TRUE, stringsAsFactors=FALSE)
       fluxes$nee    = fluxes$nee / self$area
       fluxes$r_soil = fluxes$r_soil / self$area
@@ -444,27 +444,163 @@ SortiePPA <- R6::R6Class("SortiePPA",
       }
       self$predictions = self$get_predictions()
       return(invisible(0))
+    },
+    #' Estimate growth rate (DBH increment) from inventory data
+    #' @param overstory boolean for above or below threshold height calculations
+    #' @param threshold numeric threshold height for calculations
+    #' @param ... data.frame of forest inventory data with the columns { tag, plot, year, species }
+    #' @note If no plots exist, set: df$plot <- 1
+    rate_growth = function(overstory=TRUE, threshold=10, ...) {
+      if (length(self$files$observations$inventory) < 1) {
+        stop("Please set a forest inventory CSV file path at model$files$observations$inventory")
+      }
+      df = read.csv(self$files$observations$inventory, header=TRUE, stringsAsFactors=FALSE)
+      growth = data.frame()
+      for (year in unique(df$year)) {
+        for (species in unique(df$species[df$year==year])) {
+          if (year==min(df$year)) {
+            growth = rbind(growth, data.frame(year=year, species=species, d=NA))
+          } else {
+            if (overstory==TRUE) {
+              dbh          = mean(df$dbh[df$year==year     & df$species==species & df$dbh > threshold], na.rm=TRUE)
+              dbh_previous = mean(df$dbh[df$year==(year-1) & df$species==species & df$dbh > threshold], na.rm=TRUE)
+            } else {
+              dbh          = mean(df$dbh[df$year==year     & df$species==species & df$dbh <= threshold], na.rm=TRUE)
+              dbh_previous = mean(df$dbh[df$year==(year-1) & df$species==species & df$dbh <= threshold], na.rm=TRUE)
+            }
+            d = dbh - dbh_previous
+            d = ifelse(dbh < dbh_previous, NA, d) # remove the effect of disturbance
+            growth = rbind(growth, data.frame(year=year, species=species, d=d))
+          }
+        }
+      }
+      growth$d[is.infinite(growth$d) | is.nan(growth$d)] = NA
+      d_rate = aggregate(growth$d, by=list(year=growth$year, species=growth$species), simplify=TRUE,
+                         FUN=mean, na.rm=TRUE)
+      colnames(d_rate) = c("year","species","d")
+      d_rate$d[is.infinite(d_rate$d) | is.nan(d_rate$d)] = NA
+      return(d_rate)
+    },
+    #' Estimate mortality rate from inventory data
+    #' @param overstory boolean for above or below threshold height calculations
+    #' @param threshold numeric threshold height for calculations
+    #' @param ... data.frame of forest inventory data with the columns { tag, plot, year, species }
+    #' @note If no plots exist, set: df$plot <- 1
+    rate_mortality = function(overstory=TRUE, threshold=10, ...) {
+      if (length(self$files$observations$inventory) < 1) {
+        stop("Please set a forest inventory CSV file path at model$files$observations$inventory")
+      }
+      df = read.csv(self$files$observations$inventory, header=TRUE, stringsAsFactors=FALSE)
+      mortality = data.frame()
+      for (year in unique(df$year)) {
+        for (species in unique(df$species[df$year==year])) {
+          if (year==min(df$year)) {
+            mortality = rbind(mortality, data.frame(year=year, species=species, mu=NA))
+          } else {
+            if (overstory==TRUE) {
+              tags          = unique(df$tag[df$year==year     & df$species==species & df$dbh > threshold])
+              tags_previous = unique(df$tag[df$year==(year-1) & df$species==species & df$dbh > threshold])
+            } else {
+              tags          = unique(df$tag[df$year==year     & df$species==species & df$dbh <= threshold])
+              tags_previous = unique(df$tag[df$year==(year-1) & df$species==species & df$dbh <= threshold])
+            }
+            mu = 1 - (sum(tags %in% tags_previous) / length(tags_previous))
+            mortality = rbind(mortality, data.frame(year=year, species=species, mu=mu))
+          }
+        }
+      }
+      mortality$mu[is.infinite(mortality$mu) | is.nan(mortality$mu)] = NA
+      mu_rate = aggregate(mortality$mu, by=list(year=mortality$year, species=mortality$species),
+                          simplify=TRUE, FUN=mean, na.rm=TRUE)
+      colnames(mu_rate) = c("year","species","mu")
+      mu_rate$mu[is.infinite(mu_rate$mu) | is.nan(mu_rate$mu)] = NA
+      return(mu_rate)
+    },
+    #' Estimate recruitment rate from inventory data
+    #' @param ... data.frame of forest inventory data with the columns { tag, plot, year, species }
+    #' @note If no plots exist, set: df$plot <- 1
+    rate_recruitment = function(...) {
+      if (length(self$files$observations$inventory) < 1) {
+        stop("Please set a forest inventory CSV file path at model$files$observations$inventory")
+      }
+      df = read.csv(self$files$observations$inventory, header=TRUE, stringsAsFactors=FALSE)
+      recruitment = data.frame()
+      for (year in unique(df$year)) {
+        for (species in unique(df$species[df$year==year])) {
+          if (year == min(df$year)) {
+            recruitment = rbind(recruitment, data.frame(year=year, species=species, f=NA))
+          } else {
+            tags          = unique(df$tag[df$year==year     & df$species==species])
+            tags_previous = unique(df$tag[df$year==(year-1) & df$species==species])
+            f = sum(!tags %in% tags_previous) / length(tags_previous)
+            recruitment = rbind(recruitment, data.frame(year=year, species=species, f=f))
+          }
+        }
+      }
+      recruitment$f[is.infinite(recruitment$f) | is.nan(recruitment$f)] = NA
+      f_rate = aggregate(recruitment$f, by=list(year=recruitment$year, species=recruitment$species),
+                         simplify=TRUE, FUN=mean, na.rm=TRUE)
+      colnames(f_rate) = c("year","species","f")
+      f_rate$f[is.infinite(f_rate$f) | is.nan(f_rate$f)] = NA
+      return(f_rate)
+    },
+    #' Master function to estimate all rates
+    #' @param n numeric number of samples to draw
+    #' @param threshold numeric threshold height for calculations
+    #' @param export boolean for saving a CSV file
+    #' @note Forest inventory CSV file must contain the columns { tag, plot, year, species }
+    rates_cdf = function(n, threshold=10, export=FALSE) {
+      # Growth
+      d_overstory     = self$rate_growth(overstory=TRUE, threshold=threshold)
+      species         = unique(d_overstory$species)
+      d_overstory_n   = aggregate(d_overstory$d, by=list(species=d_overstory$species),
+                                  simplify=FALSE, FUN=sample_empirical_cdf, n=n)
+      d_understory    = self$rate_growth(overstory=FALSE, threshold=threshold)
+      d_understory_n  = aggregate(d_understory$d, by=list(species=d_understory$species),
+                                  simplify=FALSE, FUN=sample_empirical_cdf, n=n)
+      # Mortality
+      mu_overstory    = self$rate_mortality(overstory=TRUE, threshold=threshold)
+      mu_overstory_n  = aggregate(mu_overstory$mu, by=list(species=mu_overstory$species),
+                                  simplify=FALSE, FUN=sample_empirical_cdf, n=n)
+      mu_understory   = self$rate_mortality(overstory=FALSE, threshold=threshold)
+      mu_understory_n = aggregate(mu_understory$mu, by=list(species=mu_understory$species),
+                                  simplify=FALSE, FUN=sample_empirical_cdf, n=n)
+      # Recruitment
+      f   = self$rate_recruitment()
+      f_n = aggregate(f$f, by=list(species=f$species), simplify=FALSE, FUN=sample_empirical_cdf, n=n)
+      # All
+      output = list(species       = d_overstory_n$species,
+                    d_overstory   = setNames(d_overstory_n$x,   species),
+                    d_understory  = setNames(d_understory_n$x,  species),
+                    mu_overstory  = setNames(mu_overstory_n$x,  species),
+                    mu_understory = setNames(mu_understory_n$x, species),
+                    f             = setNames(f_n$x,             species))
+      if (export==TRUE) {
+        save(jsonlite::toJSON(output), file=file.path(self$directory, "ppa_parameters.csv"))
+      }
+      return(output)
     }
   )
 )
 
 
-#' Landis2 R6 class
+#' LANDIS-2 R6 class
 #'
-#' Landis2 R6 subclass of Model R6 class.
+#' LANDIS-2 R6 subclass of Model R6 class.
 #' @docType class
 #' @author Adam Erickson, PhD, Washington State University, \email{adam.michael.erickson@@gmail.com}
+#' @references \url{"https://github.com/adam-erickson/forestmodelr"}
 #' @export
 #' @return Object of \code{\link{R6::R6Class}} with methods for running forest biogeochemistry models.
 #' @format \code{\link{R6::R6Class}} object.
 #'
-Landis2 <- R6::R6Class("Landis2",
+LANDIS_2 <- R6::R6Class("LANDIS_2",
   inherit = Model,
   public = list(
     #' @section Public:
     #' Public variables and methods for class LandisII.
     #' Fields are inherited from Model class.
-    name    = "Landis2",
+    name    = "LANDIS-II",
     version = 6.2,
     #' Override default initialization
     initialize = function(directory=NA) {
@@ -570,14 +706,14 @@ Landis2 <- R6::R6Class("Landis2",
       )
       super$initialize(directory)
     },
-    #' Set LANDIS_VERSION environmental variable for executable
+    #' Set LANDIS_VERSION environmental variable for executable.
     #' @note Necessary if multiple LANDIS-II versions are installed.
     #' @param ... Only use class variables.
     set_version = function(...) {
       Sys.putenv(LANDIS_VERSION=self$version)
       return(invisible(self$version))
     },
-    #' Method to read species file to list from txt
+    #' Method to read species file to list from txt.
     #' @note Stores results in parameters$species list.
     #' @param ... Only use class variables.
     read_species = function(...) {
@@ -590,7 +726,7 @@ Landis2 <- R6::R6Class("Landis2",
       # Write to object: self$parameters$core$species
       return(invisible(list(header=header, species=species)))
     },
-    #' Method to write species file to txt
+    #' Method to write species file to txt.
     #' @note Expects parameters$succession$necn was first populated by read_necn().
     #' @param overwrite Boolean switch for overwriting an existing file.
     write_species = function(overwrite=TRUE, ...) {
@@ -612,7 +748,7 @@ Landis2 <- R6::R6Class("Landis2",
       write(" ",    path, append=TRUE)
       return(invisible(0))
     },
-    #' Method to read necn_hydro file to list from txt
+    #' Method to read necn_hydro file to list from txt.
     #' @note Designed for NECN version 5.
     #' @note Parses tables within text file to dataframes within list.
     #' @param ... Only use class variables.
@@ -649,7 +785,7 @@ Landis2 <- R6::R6Class("Landis2",
       return(invisible(list(kv=kv, lai=lai, establishment=let, species=spp,
                             pft=pft, fire=fire, harvest=harvest)))
     },
-    #' Method to write necn_hydro file from list to txt
+    #' Method to write necn_hydro file from list to txt.
     #' @note Designed for NECN version 5.
     #' @note Expects parameters$succession$necn was first populated by read_necn().
     #' @param overwrite Boolean switch for overwriting an existing file.
@@ -749,6 +885,7 @@ Landis2 <- R6::R6Class("Landis2",
     #' abundance_sp ........ % of total n-trees
     #' @param variable Character for metric to select.
     #' @param ... Only class variables.
+    #' @note LANDIS-II outputs biomass, C, and N values on an areal basis (g m-2)
     get_predictions = function(variable="all", ...) {
       if (length(self$timescale) < 2) { stop("Please set a timescale before getting predictions") }
       # Annual log
@@ -778,7 +915,7 @@ Landis2 <- R6::R6Class("Landis2",
       biomass_sp = setNames(aggregate(calibrate$Bcohort,
                                       by=list(calibrate$year, calibrate$SpeciesName),
                                       sum, na.rm=TRUE), c("year","species","biomass_ag"))
-      biomass_sp$biomass_ag = biomass_sp$biomass_ag / 1000 / self$area
+      biomass_sp$biomass_ag = biomass_sp$biomass_ag / 1000
       nee        = data.frame(year=annual$year, nee        = annual$NEEC / 1000)
       biomass_ag = data.frame(year=annual$year, biomass_ag = annual$AGB / 1000)
       c_ag       = data.frame(year=annual$year, c_ag       = annual$AGB * 0.5 / 1000)
@@ -832,6 +969,172 @@ Landis2 <- R6::R6Class("Landis2",
         stop("Output files must exist and timescale must be set")
       }
       self$predictions = self$get_predictions()
+      return(invisible(0))
+    }
+  )
+)
+
+#' Intercomparison R6 class
+#'
+#' Wrapper for objects of the Model class.
+#' @docType class
+#' @author Adam Erickson, PhD, Washington State University, \email{adam.michael.erickson@@gmail.com}
+#' @references \url{"https://github.com/adam-erickson/forestmodelr"}
+#' @export
+#' @return Object of \code{\link{R6::R6Class}} with methods for running forest biogeochemistry models.
+#' @format \code{\link{R6::R6Class}} object.
+#' @examples
+#' ppa    <- PPA_SiBGC$new()
+#' landis <- LANDIS_2$new()
+#' ic     <- Intercomparison(models=list(ppa, landis))
+#' sortie$parameters <- c(0.7, 0.1)
+#'
+Intercomparison <- R6::R6Class("Intercomparison",
+  public = list(
+    #' @section Public:
+    #' Public variables and methods for class Model.
+    #' @field names List of model names. Defaults to list().
+    #' @field site Character site name. Defaults to c().
+    #' @field predictions List of predictions. Defaults to list().
+    #' @field obsevations List of observations. Defaults to list().
+    models = list(),
+    names = list(),
+    site = c(),
+    predictions = list(),
+    observations = list(),
+    fitness = data.frame(),
+    #' Initialize method
+    #' This function is executed by default upon class initialization.
+    #' @param models List of models.
+    #' @return Model object.
+    #' @example Intercomparison$new(list(ppa, landis))
+    initialize = function(models=list(), ...) {
+      self$models = models
+      self$names = lapply(models, function(x) x$name)
+      self$site = models[[1]]$site
+      self$observations = models[[1]]$observations
+      self$predictions = lapply(models, function(x) x$predictions)
+      # calculate model fitness and store the values
+      fitness = do.call(cbind, lapply(models, function(x) x$get_fitness()))
+      idx = which(duplicated(names(fitness)) & names(fitness) == "metric")
+      fitness = fitness[,-idx]
+      means   = as.numeric(colMeans(fitness[,-1], na.rm=TRUE))
+      means   = c("mean", means)
+      fitness$metric = as.character(fitness$metric)
+      fitness = rbind(fitness, means)
+      for (i in 2:ncol(fitness)) { fitness[,i] = as.numeric(fitness[,i]) }
+      self$fitness = fitness
+      colnames(self$fitness) = c("metric", rep(c("r2","rmse","mae","me"), times=length(models)))
+      message("Intercomparison initialized")
+      invisible(0)
+    },
+    #' Plot method
+    #' @param variable Character variable to plot.
+    #' @param legend Boolean for plotting a legend.
+    #' @return Model object.
+    #' @example ic$plot()
+    plot = function(variable, legend=TRUE, cex=1.3, ...) {
+      n_models = length(self$models)
+      x_years  = list(self$observations[[variable]]$year)
+      y_years  = lapply(self$predictions, function(z) z[[variable]]$year)
+      years    = Reduce(intersect, c(x_years, y_years))
+      x = subset(self$observations[[variable]], year %in% years)
+      y = lapply(self$predictions, function(z) subset(z[[variable]], year %in% years))
+      if (grepl("^(biomass|abundance)_sp$", variable)) {
+        for (i in seq(n_models)) { y[[i]]$source = self$names[[i]] }
+        x$source = "Observations"
+        y = do.call(rbind, y)
+        full = rbind(x, y)
+        full$source = factor(full$source, levels=c("Observations", self$names))
+        y_var = colnames(y)[grep("biomass|abundance", colnames(y))]
+        qual_col_pals = RColorBrewer::brewer.pal.info[RColorBrewer::brewer.pal.info$category=="qual",]
+        col_vector = unlist(mapply(RColorBrewer::brewer.pal, qual_col_pals$maxcolors, rownames(qual_col_pals)))
+        #p1 = ggplot2::ggplot(x, ggplot2::aes_string(x="year", y=y_var, fill="species")) +
+        #  ggplot2::geom_bar(stat="identity") + ggplot2::scale_fill_manual(values=col_vector) +
+        #  ggplot2::theme_minimal()
+        print(ggplot2::ggplot(full, ggplot2::aes_string(x="year", y=y_var, fill="species")) +
+          ggplot2::geom_bar(stat="identity") + ggplot2::scale_fill_manual(values=col_vector) +
+          ggplot2::scale_x_continuous(breaks=seq(min(full$year), max(full$year), 1)) +
+          ggplot2::theme(
+            axis.text.x      = ggplot2::element_text(size=12, angle=90, vjust=0.5),
+            legend.text      = ggplot2::element_text(size=12),
+            strip.text       = ggplot2::element_text(size=12),
+            axis.title       = ggplot2::element_text(size=14),
+            #legend.title     = ggplot2::element_text(size=14),
+            legend.title     = ggplot2::element_blank(),
+            legend.key.size  = ggplot2::unit(0.75, "line"),
+            panel.background = ggplot2::element_rect(fill = NA),
+            strip.background = ggplot2::element_rect(fill = NA),
+            panel.grid.major = ggplot2::element_line(colour = "grey80", size=0.3),
+            axis.ticks       = ggplot2::element_line(colour = "grey80", size=0.3),
+            panel.grid.minor = ggplot2::element_line(colour = "grey90", size=0.1)
+          ) +
+          ggplot2::facet_grid(.~source)) # + ggplot2::theme_minimal()
+        #print(ggpubr::ggarrange(p1, p2, widths=c(5,5), ncol=2, nrow=1, align="h", legend="right", common.legend=TRUE))
+      } else {
+        y_values = c(x[[variable]], unlist(lapply(y, function(z) z[[variable]])))
+        #cl = rainbow(n_models)
+        cl = RColorBrewer::brewer.pal(ifelse(n_models > 2, n_models, 3), "Set1")
+        plotcol = c()
+        par(cex.lab=cex, cex.axis=cex, cex.main=cex, cex.sub=cex,
+            font.axis=1, font.lab=1, font.main=1, font.sub=1, family="sans")
+        plot(x, ylim=c(min(y_values), ymax=max(y_values)), type="l", lwd=2)
+        axis(1, tck=1, col.ticks="light gray")
+        axis(1, tck=-0.015, col.ticks="black")
+        axis(2, tck=1, col.ticks="light gray", lwd.ticks="1")
+        axis(2, tck=-0.015)
+        Hmisc::minor.tick(nx=5, ny=2, tick.ratio=0.5)
+        box()
+        lines(x=years, y=x[[variable]], col="black", lwd=2)
+        for (i in seq(n_models)) {
+          values = y[[i]][[variable]]
+          lines(x=years, y=values, col=cl[i], lwd=2)
+          plotcol[i] <- cl[i]
+        }
+        if (legend == TRUE) {
+          legend("topright", legend=c(unlist(self$names),"Observations"), col=c(plotcol,"black"), lwd=2, cex=0.5)
+        }
+        par(cex.lab=1, cex.axis=1, cex.main=1, family="serif")
+      }
+      invisible(0)
+    },
+    #' Helper function to automatically produce PDF files of plots
+    #' @param directory
+    #' @param variable
+    #' @param width
+    #' @param height
+    #' @param family
+    #' @param paper
+    #' @param ... Only use class variables.
+    #' @return 0
+    #' @example ic$save_pdf(file.path(base, "figures"), "nee")
+    save_pdf = function(directory, variable, width=5, height=5, family="Helvetica", paper="special", legend=FALSE, ...) {
+      file = paste0(self$site, "_intercomparison_", variable, ".pdf")
+      pdf(file=file.path(directory, file), width=width, height=height, family=family, paper=paper, onefile=FALSE)
+      self$plot(variable=variable, legend=legend)
+      graphics.off()
+      message(paste("PDF file location:", file.path(directory, file)))
+      return(invisible(0))
+    },
+    #' Helper function to automatically produce PDF files of plots
+    #' @param directory
+    #' @param ... Only use class variables.
+    #' @return 0
+    #' @example ic$save_pdf(file.path(base, "figures"), "nee")
+    save_tex = function(directory, ...) {
+      file = paste0(self$site, "_fitness.tex")
+      stargazer::stargazer(self$fitness, type="latex", digits=2, summary=FALSE,
+                           rownames=FALSE, align=TRUE, header=FALSE, out=file)
+      message(paste("LaTeX file location:", file.path(directory, file)))
+      return(invisible(0))
+    },
+    #' Helper function to automatically run all models
+    #' @note Overwrites existing files!
+    #' @param ... Only use class variables.
+    #' @return 0
+    #' @example ic$run()
+    run = function(directory, ...) {
+      lapply(self$models, function(x) x$run())
       return(invisible(0))
     }
   )
