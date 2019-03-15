@@ -4,7 +4,9 @@ Supplementary files for Erickson and Strigul (2019) A Forest Model Intercomparis
 
 ## Licenses
 Erde      - Apache 2.0
+&nbsp;
 PPA-SiBGC - Apache 2.0
+&nbsp;
 LANDIS-II - Apache 2.0
 
 ## Acknowledgements
